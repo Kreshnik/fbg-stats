@@ -6,9 +6,9 @@ import FacebookGraphService from "./FacebookGraphService";
 
 const GROUP_ID = process.env.GROUP_ID;
 
-const userPromise = FacebookGraphService.getUsers(`/${GROUP_ID}/members?limit=500`);
+const userPromise = FacebookGraphService.getUsers(`/${GROUP_ID}/members?limit=100`);
 userPromise.then(function (users) {
-    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=500`);
+    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=100`);
     postPromise.then(function (posts) {
 
         _.forEach(users, function (user) {

@@ -9,15 +9,21 @@ import Post from "./Post";
 const spinner = Ora();
 FacebookGraph.setAccessToken(process.env.ACCESS_TOKEN);
 
+let numberOfMembers = 0;
+let numberOfPosts = 0;
+
 export default class FacebookGraphService {
     static getUsers(url) {
-        spinner.text = "Fetching members.";
+        spinner.text = "Fetching members: " + numberOfMembers;
         spinner.start();
         return new Promise(function (resolve, reject) {
             let users = [];
             FacebookGraph.get(url, function (err, response) {
                 if (err === null) {
                     if (response.data.length) {
+                        
+                        numberOfMembers += response.data.length;
+                        spinner.text = "Fetching members: " + numberOfMembers;
 
                         response.data.forEach(function (user) {
                             users.push(new User(user.name));
@@ -50,13 +56,16 @@ export default class FacebookGraphService {
     }
 
     static getPosts(url) {
-        spinner.text = "Fetching posts.";
+        spinner.text = "Fetching posts: " + numberOfPosts;
         spinner.start();
         return new Promise(function (resolve, reject) {
             let posts = [];
             FacebookGraph.get(url, function (err, response) {
                 if (err === null) {
                     if (response.data.length) {
+
+                        numberOfPosts += response.data.length;
+                        spinner.text = "Fetching posts: " + numberOfPosts;
 
                         response.data.forEach(function (post) {
                             posts.push(new Post(

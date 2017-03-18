@@ -35111,6 +35111,9 @@ __webpack_require__(53).config();
 var spinner = (0, _ora2.default)();
 _fbgraph2.default.setAccessToken(process.env.ACCESS_TOKEN);
 
+var numberOfMembers = 0;
+var numberOfPosts = 0;
+
 var FacebookGraphService = function () {
     function FacebookGraphService() {
         _classCallCheck(this, FacebookGraphService);
@@ -35119,13 +35122,16 @@ var FacebookGraphService = function () {
     _createClass(FacebookGraphService, null, [{
         key: "getUsers",
         value: function getUsers(url) {
-            spinner.text = "Fetching members.";
+            spinner.text = "Fetching members: " + numberOfMembers;
             spinner.start();
             return new _promise2.default(function (resolve, reject) {
                 var users = [];
                 _fbgraph2.default.get(url, function (err, response) {
                     if (err === null) {
                         if (response.data.length) {
+
+                            numberOfMembers += response.data.length;
+                            spinner.text = "Fetching members: " + numberOfMembers;
 
                             response.data.forEach(function (user) {
                                 users.push(new _User2.default(user.name));
@@ -35159,13 +35165,16 @@ var FacebookGraphService = function () {
     }, {
         key: "getPosts",
         value: function getPosts(url) {
-            spinner.text = "Fetching posts.";
+            spinner.text = "Fetching posts: " + numberOfPosts;
             spinner.start();
             return new _promise2.default(function (resolve, reject) {
                 var posts = [];
                 _fbgraph2.default.get(url, function (err, response) {
                     if (err === null) {
                         if (response.data.length) {
+
+                            numberOfPosts += response.data.length;
+                            spinner.text = "Fetching posts: " + numberOfPosts;
 
                             response.data.forEach(function (post) {
                                 posts.push(new _Post2.default(post.hasOwnProperty("message") ? post.message : "", post.hasOwnProperty("story") ? post.story : "", post.updated_time));
@@ -67143,9 +67152,9 @@ __webpack_require__(53).config();
 
 var GROUP_ID = process.env.GROUP_ID;
 
-var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=500");
+var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=100");
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=500");
+    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=100");
     postPromise.then(function (posts) {
 
         _lodash2.default.forEach(users, function (user) {
