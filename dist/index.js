@@ -35119,12 +35119,10 @@ var FacebookGraphService = function () {
     _createClass(FacebookGraphService, null, [{
         key: "getUsers",
         value: function getUsers(url) {
+            spinner.text = "Fetching members.";
+            spinner.start();
             return new _promise2.default(function (resolve, reject) {
                 var users = [];
-
-                spinner.text = "Fetching members.";
-                spinner.start();
-
                 _fbgraph2.default.get(url, function (err, response) {
                     if (err === null) {
                         if (response.data.length) {
@@ -35148,6 +35146,7 @@ var FacebookGraphService = function () {
                                 resolve(users);
                             }
                         } else {
+                            spinner.stop();
                             resolve(users);
                         }
                     } else {
@@ -35160,12 +35159,10 @@ var FacebookGraphService = function () {
     }, {
         key: "getPosts",
         value: function getPosts(url) {
+            spinner.text = "Fetching posts.";
+            spinner.start();
             return new _promise2.default(function (resolve, reject) {
                 var posts = [];
-
-                spinner.text = "Fetching posts.";
-                spinner.start();
-
                 _fbgraph2.default.get(url, function (err, response) {
                     if (err === null) {
                         if (response.data.length) {
@@ -35189,6 +35186,7 @@ var FacebookGraphService = function () {
                                 resolve(posts);
                             }
                         } else {
+                            spinner.stop();
                             resolve(posts);
                         }
                     } else {
@@ -67145,9 +67143,9 @@ __webpack_require__(53).config();
 
 var GROUP_ID = process.env.GROUP_ID;
 
-var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members");
+var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=500");
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed");
+    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=500");
     postPromise.then(function (posts) {
 
         _lodash2.default.forEach(users, function (user) {
