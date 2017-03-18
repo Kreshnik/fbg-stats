@@ -67156,7 +67156,7 @@ var LIMIT = process.env.LIMIT;
 
 var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=" + LIMIT);
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT + "&fields=message,story,id,from,created_time");
+    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT + "&fields=from");
     postPromise.then(function (posts) {
 
         _lodash2.default.forEach(users, function (user) {

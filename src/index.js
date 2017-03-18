@@ -9,7 +9,7 @@ const LIMIT = process.env.LIMIT;
 
 const userPromise = FacebookGraphService.getUsers(`/${GROUP_ID}/members?limit=${LIMIT}`);
 userPromise.then(function (users) {
-    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=${LIMIT}&fields=message,story,id,from,created_time`);
+    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=${LIMIT}&fields=from`);
     postPromise.then(function (posts) {
 
         _.forEach(users, function (user) {
