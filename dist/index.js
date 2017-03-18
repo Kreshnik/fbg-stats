@@ -67151,10 +67151,11 @@ __webpack_require__(53).config();
 
 
 var GROUP_ID = process.env.GROUP_ID;
+var LIMIT = process.env.LIMIT;
 
-var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=100");
+var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=" + LIMIT);
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=100");
+    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT);
     postPromise.then(function (posts) {
 
         _lodash2.default.forEach(users, function (user) {

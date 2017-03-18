@@ -5,10 +5,11 @@ import DataPresenter from "./DataPresenter";
 import FacebookGraphService from "./FacebookGraphService";
 
 const GROUP_ID = process.env.GROUP_ID;
+const LIMIT = process.env.LIMIT;
 
-const userPromise = FacebookGraphService.getUsers(`/${GROUP_ID}/members?limit=100`);
+const userPromise = FacebookGraphService.getUsers(`/${GROUP_ID}/members?limit=${LIMIT}`);
 userPromise.then(function (users) {
-    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=100`);
+    const postPromise = FacebookGraphService.getPosts(`/${GROUP_ID}/feed?limit=${LIMIT}`);
     postPromise.then(function (posts) {
 
         _.forEach(users, function (user) {
