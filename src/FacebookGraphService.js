@@ -11,12 +11,10 @@ FacebookGraph.setAccessToken(process.env.ACCESS_TOKEN);
 
 export default class FacebookGraphService {
     static getUsers(url) {
+        spinner.text = "Fetching members.";
+        spinner.start();
         return new Promise(function (resolve, reject) {
             let users = [];
-
-            spinner.text = "Fetching members.";
-            spinner.start();
-
             FacebookGraph.get(url, function (err, response) {
                 if (err === null) {
                     if (response.data.length) {
@@ -40,6 +38,7 @@ export default class FacebookGraphService {
                             resolve(users);
                         }
                     } else {
+                        spinner.stop();
                         resolve(users);
                     }
                 } else {
@@ -51,12 +50,10 @@ export default class FacebookGraphService {
     }
 
     static getPosts(url) {
+        spinner.text = "Fetching posts.";
+        spinner.start();
         return new Promise(function (resolve, reject) {
             let posts = [];
-
-            spinner.text = "Fetching posts.";
-            spinner.start();
-
             FacebookGraph.get(url, function (err, response) {
                 if (err === null) {
                     if (response.data.length) {
@@ -84,6 +81,7 @@ export default class FacebookGraphService {
                             resolve(posts);
                         }
                     } else {
+                        spinner.stop();
                         resolve(posts);
                     }
                 } else {
