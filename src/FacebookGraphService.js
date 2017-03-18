@@ -69,9 +69,7 @@ export default class FacebookGraphService {
 
                         response.data.forEach(function (post) {
                             posts.push(new Post(
-                                (post.hasOwnProperty("message")) ? post.message : "",
-                                (post.hasOwnProperty("story")) ? post.story : "",
-                                post.updated_time
+                                post.from.id
                             ));
                         });
 

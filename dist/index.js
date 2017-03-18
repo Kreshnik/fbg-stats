@@ -35178,7 +35178,7 @@ var FacebookGraphService = function () {
                             spinner.text = "Fetching posts: " + numberOfPosts;
 
                             response.data.forEach(function (post) {
-                                posts.push(new _Post2.default(post.hasOwnProperty("message") ? post.message : "", post.hasOwnProperty("story") ? post.story : "", post.updated_time));
+                                posts.push(new _Post2.default(post.from.id));
                             });
 
                             if (response.paging && response.paging.next) {
@@ -41410,12 +41410,10 @@ Object.defineProperty(exports, "__esModule", {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Post = function Post(message, story, lastUpdatedAt) {
+var Post = function Post(userId) {
     _classCallCheck(this, Post);
 
-    this.message = message;
-    this.story = story;
-    this.lastUpdatedAt = lastUpdatedAt;
+    this.userId = userId;
 };
 
 exports.default = Post;
@@ -67158,12 +67156,12 @@ var LIMIT = process.env.LIMIT;
 
 var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=" + LIMIT);
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT);
+    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT + "&fields=message,story,id,from,created_time");
     postPromise.then(function (posts) {
 
         _lodash2.default.forEach(users, function (user) {
             user.posts = _lodash2.default.filter(posts, function (post) {
-                return post.story.includes(user.name);
+                return post.userId === user.id;
             });
         });
 
