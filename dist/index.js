@@ -35139,6 +35139,9 @@ var FacebookGraphService = function () {
                                     users = _.concat(users, response);
                                     spinner.stop();
                                     resolve(users);
+                                }).catch(function (err) {
+                                    spinner.stop();
+                                    reject(err);
                                 });
                             } else {
                                 spinner.stop();
@@ -35177,6 +35180,9 @@ var FacebookGraphService = function () {
                                     posts = _.concat(posts, response);
                                     spinner.stop();
                                     resolve(posts);
+                                }).catch(function (err) {
+                                    spinner.stop();
+                                    reject(err);
                                 });
                             } else {
                                 spinner.stop();
