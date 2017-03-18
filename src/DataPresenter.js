@@ -12,13 +12,14 @@ export default class DataPresenter {
         spinner.start();
 
         let userTable = new Table({
-            head: ['Name', 'Post Count']
-            , colWidths: [20, 15]
+            head: ['Id', 'Name', 'Post Count', 'Is Admin']
+            , colWidths: [20, 20, 13, 10]
         });
 
         const _users = _.orderBy(users, 'posts', 'desc');
+        
         _.forEach(_users, function (user) {
-            userTable.push([user.name, user.numberOfPost()]);
+            userTable.push([user.id, user.name, user.numberOfPost(), user.isAdmin]);
         });
 
         spinner.stop();
@@ -32,9 +33,9 @@ export default class DataPresenter {
 
         let _users = _.orderBy(users, 'posts', 'desc');
         _users = _.map(_users, function (user) {
-            return [user.name, user.numberOfPost()];
+            return [user.id, user.name, user.numberOfPost(), user.isAdmin];
         });
-
+        _users.unshift(['Id', 'Name', 'Post Count', 'Is Admin']);
         const csv = BabyParse.unparse(_users);
 
         fs.writeFile(`${fileName}.csv`, csv, function (err) {

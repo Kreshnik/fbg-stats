@@ -26,7 +26,7 @@ export default class FacebookGraphService {
                         spinner.text = "Fetching members: " + numberOfMembers;
 
                         response.data.forEach(function (user) {
-                            users.push(new User(user.name));
+                            users.push(new User(user.id, user.name, user.administrator));
                         });
 
                         if (response.paging && response.paging.next) {

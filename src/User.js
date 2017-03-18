@@ -1,7 +1,9 @@
 export default class User{
     
-    constructor(name) {
+    constructor(id, name, isAdmin) {
+        this.id = id;
         this.name = name;
+        this.isAdmin = isAdmin;
         this.posts = [];
     }
     

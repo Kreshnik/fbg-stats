@@ -35031,13 +35031,14 @@ var DataPresenter = function () {
             spinner.start();
 
             var userTable = new _cliTable2.default({
-                head: ['Name', 'Post Count'],
-                colWidths: [20, 15]
+                head: ['Id', 'Name', 'Post Count', 'Is Admin'],
+                colWidths: [20, 20, 13, 10]
             });
 
             var _users = _lodash2.default.orderBy(users, 'posts', 'desc');
+
             _lodash2.default.forEach(_users, function (user) {
-                userTable.push([user.name, user.numberOfPost()]);
+                userTable.push([user.id, user.name, user.numberOfPost(), user.isAdmin]);
             });
 
             spinner.stop();
@@ -35052,9 +35053,9 @@ var DataPresenter = function () {
 
             var _users = _lodash2.default.orderBy(users, 'posts', 'desc');
             _users = _lodash2.default.map(_users, function (user) {
-                return [user.name, user.numberOfPost()];
+                return [user.id, user.name, user.numberOfPost(), user.isAdmin];
             });
-
+            _users.unshift(['Id', 'Name', 'Post Count', 'Is Admin']);
             var csv = _babyparse2.default.unparse(_users);
 
             _fs2.default.writeFile(fileName + ".csv", csv, function (err) {
@@ -35134,7 +35135,7 @@ var FacebookGraphService = function () {
                             spinner.text = "Fetching members: " + numberOfMembers;
 
                             response.data.forEach(function (user) {
-                                users.push(new _User2.default(user.name));
+                                users.push(new _User2.default(user.id, user.name, user.administrator));
                             });
 
                             if (response.paging && response.paging.next) {
@@ -41435,10 +41436,12 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var User = function () {
-    function User(name) {
+    function User(id, name, isAdmin) {
         _classCallCheck(this, User);
 
+        this.id = id;
         this.name = name;
+        this.isAdmin = isAdmin;
         this.posts = [];
     }
 
