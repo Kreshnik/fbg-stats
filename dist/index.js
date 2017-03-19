@@ -34988,7 +34988,7 @@ module.exports = require("tls");
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -35020,51 +35020,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var spinner = (0, _ora2.default)();
 
 var DataPresenter = function () {
-    function DataPresenter() {
-        _classCallCheck(this, DataPresenter);
+  function DataPresenter() {
+    _classCallCheck(this, DataPresenter);
+  }
+
+  _createClass(DataPresenter, null, [{
+    key: "getColumns",
+    value: function getColumns() {
+      return ["Id", "URL", "Name", "Post Count", "Is Admin"];
     }
+  }, {
+    key: "getUserRow",
+    value: function getUserRow(user) {
+      return [user.id, "https://facebook.com/" + user.id, user.name, user.numberOfPost(), user.isAdmin];
+    }
+  }, {
+    key: "generateUsersTable",
+    value: function generateUsersTable(users) {
+      spinner.text = "Generating user table.";
+      spinner.start();
 
-    _createClass(DataPresenter, null, [{
-        key: "generateUsersTable",
-        value: function generateUsersTable(users) {
-            spinner.text = "Generating user table.";
-            spinner.start();
+      var userTable = new _cliTable2.default({
+        head: this.getColumns(),
+        colWidths: [20, 40, 20, 13, 10]
+      });
 
-            var userTable = new _cliTable2.default({
-                head: ['Id', 'Name', 'Post Count', 'Is Admin'],
-                colWidths: [20, 20, 13, 10]
-            });
+      var _users = _lodash2.default.orderBy(users, "posts", "desc");
 
-            var _users = _lodash2.default.orderBy(users, 'posts', 'desc');
+      _lodash2.default.forEach(_users, function (user) {
+        userTable.push(this.getUserRow(user));
+      }.bind(this));
 
-            _lodash2.default.forEach(_users, function (user) {
-                userTable.push([user.id, user.name, user.numberOfPost(), user.isAdmin]);
-            });
+      spinner.stop();
+      console.log(userTable.toString());
+    }
+  }, {
+    key: "generateUsersCSV",
+    value: function generateUsersCSV(users, fileName) {
+      spinner.text = "Saving data to csv.";
+      spinner.start();
 
-            spinner.stop();
-            console.log(userTable.toString());
-        }
-    }, {
-        key: "generateUsersCSV",
-        value: function generateUsersCSV(users, fileName) {
+      var _users = _lodash2.default.orderBy(users, "posts", "desc");
+      _users = _lodash2.default.map(_users, function (user) {
+        return this.getUserRow(user);
+      }.bind(this));
+      _users.unshift(this.getColumns());
+      var csv = _babyparse2.default.unparse(_users);
 
-            spinner.text = "Saving data to csv.";
-            spinner.start();
+      _fs2.default.writeFile(fileName + ".csv", csv, function (err) {
+        spinner.stop();
+      });
+    }
+  }]);
 
-            var _users = _lodash2.default.orderBy(users, 'posts', 'desc');
-            _users = _lodash2.default.map(_users, function (user) {
-                return [user.id, user.name, user.numberOfPost(), user.isAdmin];
-            });
-            _users.unshift(['Id', 'Name', 'Post Count', 'Is Admin']);
-            var csv = _babyparse2.default.unparse(_users);
-
-            _fs2.default.writeFile(fileName + ".csv", csv, function (err) {
-                spinner.stop();
-            });
-        }
-    }]);
-
-    return DataPresenter;
+  return DataPresenter;
 }();
 
 exports.default = DataPresenter;
@@ -35077,7 +35086,7 @@ exports.default = DataPresenter;
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -35116,99 +35125,97 @@ var numberOfMembers = 0;
 var numberOfPosts = 0;
 
 var FacebookGraphService = function () {
-    function FacebookGraphService() {
-        _classCallCheck(this, FacebookGraphService);
+  function FacebookGraphService() {
+    _classCallCheck(this, FacebookGraphService);
+  }
+
+  _createClass(FacebookGraphService, null, [{
+    key: "getUsers",
+    value: function getUsers(url) {
+      spinner.text = "Fetching members: " + numberOfMembers;
+      spinner.start();
+      return new _promise2.default(function (resolve, reject) {
+        var users = [];
+        _fbgraph2.default.get(url, function (err, response) {
+          if (err === null) {
+            if (response.data.length) {
+              numberOfMembers += response.data.length;
+              spinner.text = "Fetching members: " + numberOfMembers;
+
+              response.data.forEach(function (user) {
+                users.push(new _User2.default(user.id, user.name, user.administrator));
+              });
+
+              if (response.paging && response.paging.next) {
+                var promise = this.getUsers(response.paging.next);
+                promise.then(function (response) {
+                  users = _.concat(users, response);
+                  spinner.stop();
+                  resolve(users);
+                }).catch(function (err) {
+                  spinner.stop();
+                  reject(err);
+                });
+              } else {
+                spinner.stop();
+                resolve(users);
+              }
+            } else {
+              spinner.stop();
+              resolve(users);
+            }
+          } else {
+            spinner.stop();
+            reject(err);
+          }
+        }.bind(this));
+      }.bind(this));
     }
+  }, {
+    key: "getPosts",
+    value: function getPosts(url) {
+      spinner.text = "Fetching posts: " + numberOfPosts;
+      spinner.start();
+      return new _promise2.default(function (resolve, reject) {
+        var posts = [];
+        _fbgraph2.default.get(url, function (err, response) {
+          if (err === null) {
+            if (response.data.length) {
+              numberOfPosts += response.data.length;
+              spinner.text = "Fetching posts: " + numberOfPosts;
 
-    _createClass(FacebookGraphService, null, [{
-        key: "getUsers",
-        value: function getUsers(url) {
-            spinner.text = "Fetching members: " + numberOfMembers;
-            spinner.start();
-            return new _promise2.default(function (resolve, reject) {
-                var users = [];
-                _fbgraph2.default.get(url, function (err, response) {
-                    if (err === null) {
-                        if (response.data.length) {
+              response.data.forEach(function (post) {
+                posts.push(new _Post2.default(post.from.id));
+              });
 
-                            numberOfMembers += response.data.length;
-                            spinner.text = "Fetching members: " + numberOfMembers;
-
-                            response.data.forEach(function (user) {
-                                users.push(new _User2.default(user.id, user.name, user.administrator));
-                            });
-
-                            if (response.paging && response.paging.next) {
-                                var promise = FacebookGraphService.getUsers(response.paging.next);
-                                promise.then(function (response) {
-                                    users = _.concat(users, response);
-                                    spinner.stop();
-                                    resolve(users);
-                                }).catch(function (err) {
-                                    spinner.stop();
-                                    reject(err);
-                                });
-                            } else {
-                                spinner.stop();
-                                resolve(users);
-                            }
-                        } else {
-                            spinner.stop();
-                            resolve(users);
-                        }
-                    } else {
-                        spinner.stop();
-                        reject(err);
-                    }
+              if (response.paging && response.paging.next) {
+                var promise = this.getPosts(response.paging.next);
+                promise.then(function (response) {
+                  posts = _.concat(posts, response);
+                  spinner.stop();
+                  resolve(posts);
+                }).catch(function (err) {
+                  spinner.stop();
+                  reject(err);
                 });
-            });
-        }
-    }, {
-        key: "getPosts",
-        value: function getPosts(url) {
-            spinner.text = "Fetching posts: " + numberOfPosts;
-            spinner.start();
-            return new _promise2.default(function (resolve, reject) {
-                var posts = [];
-                _fbgraph2.default.get(url, function (err, response) {
-                    if (err === null) {
-                        if (response.data.length) {
+              } else {
+                spinner.stop();
+                resolve(posts);
+              }
+            } else {
+              spinner.stop();
+              resolve(posts);
+            }
+          } else {
+            spinner.stop();
+            reject(err);
+          }
+        }.bind(this));
+      }.bind(this));
+    }
+  }]);
 
-                            numberOfPosts += response.data.length;
-                            spinner.text = "Fetching posts: " + numberOfPosts;
-
-                            response.data.forEach(function (post) {
-                                posts.push(new _Post2.default(post.from.id));
-                            });
-
-                            if (response.paging && response.paging.next) {
-                                var promise = FacebookGraphService.getPosts(response.paging.next);
-                                promise.then(function (response) {
-                                    posts = _.concat(posts, response);
-                                    spinner.stop();
-                                    resolve(posts);
-                                }).catch(function (err) {
-                                    spinner.stop();
-                                    reject(err);
-                                });
-                            } else {
-                                spinner.stop();
-                                resolve(posts);
-                            }
-                        } else {
-                            spinner.stop();
-                            resolve(posts);
-                        }
-                    } else {
-                        spinner.stop();
-                        reject(err);
-                    }
-                });
-            });
-        }
-    }]);
-
-    return FacebookGraphService;
+  return FacebookGraphService;
 }();
 
 exports.default = FacebookGraphService;
@@ -41405,15 +41412,15 @@ function DoublyLinkedNode(key, val) {
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Post = function Post(userId) {
-    _classCallCheck(this, Post);
+  _classCallCheck(this, Post);
 
-    this.userId = userId;
+  this.userId = userId;
 };
 
 exports.default = Post;
@@ -41426,7 +41433,7 @@ exports.default = Post;
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -41434,23 +41441,23 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var User = function () {
-    function User(id, name, isAdmin) {
-        _classCallCheck(this, User);
+  function User(id, name, isAdmin) {
+    _classCallCheck(this, User);
 
-        this.id = id;
-        this.name = name;
-        this.isAdmin = isAdmin;
-        this.posts = [];
+    this.id = id;
+    this.name = name;
+    this.isAdmin = isAdmin;
+    this.posts = [];
+  }
+
+  _createClass(User, [{
+    key: "numberOfPost",
+    value: function numberOfPost() {
+      return this.posts.length;
     }
+  }]);
 
-    _createClass(User, [{
-        key: "numberOfPost",
-        value: function numberOfPost() {
-            return this.posts.length;
-        }
-    }]);
-
-    return User;
+  return User;
 }();
 
 exports.default = User;
@@ -67156,25 +67163,24 @@ var LIMIT = process.env.LIMIT;
 
 var userPromise = _FacebookGraphService2.default.getUsers("/" + GROUP_ID + "/members?limit=" + LIMIT);
 userPromise.then(function (users) {
-    var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT + "&fields=from");
-    postPromise.then(function (posts) {
-
-        _lodash2.default.forEach(users, function (user) {
-            user.posts = _lodash2.default.filter(posts, function (post) {
-                return post.userId === user.id;
-            });
-        });
-
-        if (process.env.EXPORT_TO_CSV.toLowerCase() === 'true') {
-            var fileName = GROUP_ID + '-' + new Date().getTime();
-            _DataPresenter2.default.generateUsersCSV(users, fileName);
-        }
-        if (process.env.DISPLAY_CLI_TABLE.toLowerCase() === 'true') _DataPresenter2.default.generateUsersTable(users);
-    }).catch(function (error) {
-        console.log('Error:', error);
+  var postPromise = _FacebookGraphService2.default.getPosts("/" + GROUP_ID + "/feed?limit=" + LIMIT + "&fields=from");
+  postPromise.then(function (posts) {
+    _lodash2.default.forEach(users, function (user) {
+      user.posts = _lodash2.default.filter(posts, function (post) {
+        return post.userId === user.id;
+      });
     });
+
+    if (process.env.EXPORT_TO_CSV.toLowerCase() === "true") {
+      var fileName = GROUP_ID + "-" + new Date().getTime();
+      _DataPresenter2.default.generateUsersCSV(users, fileName);
+    }
+    if (process.env.DISPLAY_CLI_TABLE.toLowerCase() === "true") _DataPresenter2.default.generateUsersTable(users);
+  }).catch(function (error) {
+    console.log("Error:", error);
+  });
 }).catch(function (error) {
-    console.log('Error:', error);
+  console.log("Error:", error);
 });
 
 /***/ })

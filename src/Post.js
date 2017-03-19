@@ -1,7 +1,5 @@
 export default class Post {
-
-    constructor(userId) {
-        this.userId = userId;
-    }
-    
+  constructor(userId) {
+    this.userId = userId;
+  }
 }

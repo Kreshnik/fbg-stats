@@ -6,41 +6,58 @@ const spinner = Ora();
 import Table from "../node_modules/cli-table";
 
 export default class DataPresenter {
+  static getColumns() {
+    return ["Id", "URL", "Name", "Post Count", "Is Admin"];
+  }
 
-    static generateUsersTable(users) {
-        spinner.text = "Generating user table.";
-        spinner.start();
+  static getUserRow(user) {
+    return [
+      user.id,
+      `https://facebook.com/${user.id}`,
+      user.name,
+      user.numberOfPost(),
+      user.isAdmin
+    ];
+  }
 
-        let userTable = new Table({
-            head: ['Id', 'Name', 'Post Count', 'Is Admin']
-            , colWidths: [20, 20, 13, 10]
-        });
+  static generateUsersTable(users) {
+    spinner.text = "Generating user table.";
+    spinner.start();
 
-        const _users = _.orderBy(users, 'posts', 'desc');
-        
-        _.forEach(_users, function (user) {
-            userTable.push([user.id, user.name, user.numberOfPost(), user.isAdmin]);
-        });
+    let userTable = new Table({
+      head: this.getColumns(),
+      colWidths: [20, 40, 20, 13, 10]
+    });
 
-        spinner.stop();
-        console.log(userTable.toString());
-    }
+    const _users = _.orderBy(users, "posts", "desc");
 
-    static generateUsersCSV(users, fileName) {
+    _.forEach(
+      _users,
+      function(user) {
+        userTable.push(this.getUserRow(user));
+      }.bind(this)
+    );
 
-        spinner.text = "Saving data to csv.";
-        spinner.start();
+    spinner.stop();
+    console.log(userTable.toString());
+  }
 
-        let _users = _.orderBy(users, 'posts', 'desc');
-        _users = _.map(_users, function (user) {
-            return [user.id, user.name, user.numberOfPost(), user.isAdmin];
-        });
-        _users.unshift(['Id', 'Name', 'Post Count', 'Is Admin']);
-        const csv = BabyParse.unparse(_users);
+  static generateUsersCSV(users, fileName) {
+    spinner.text = "Saving data to csv.";
+    spinner.start();
 
-        fs.writeFile(`${fileName}.csv`, csv, function (err) {
-            spinner.stop();
-        });
+    let _users = _.orderBy(users, "posts", "desc");
+    _users = _.map(
+      _users,
+      function(user) {
+        return this.getUserRow(user);
+      }.bind(this)
+    );
+    _users.unshift(this.getColumns());
+    const csv = BabyParse.unparse(_users);
 
-    }
+    fs.writeFile(`${fileName}.csv`, csv, function(err) {
+      spinner.stop();
+    });
+  }
 }
