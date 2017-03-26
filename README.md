@@ -12,5 +12,7 @@ A simple node script that provides you statistics about your facebook group, cur
 7.  Run `node dist/index.js` in your terminal.
 8.  Enjoy.
 
+```Note: The script does not support private facebook groups, at the time being```
+
 ## Demonstration
 ![alt Demo gif](demo.gif)
